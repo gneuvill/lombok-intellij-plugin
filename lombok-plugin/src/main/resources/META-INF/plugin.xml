@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<idea-plugin version="2" url="http://code.google.com/p/lombok-intellij-plugin">
+  <id>Lombook Plugin</id>
+  <name>Lombok Plugin</name>
+  <vendor url="http://code.google.com/p/lombok-intellij-plugin" email="lombokplugin@plushnikov.de">Michail Plushnikov</vendor>
+  <version>0.6.6</version>
+  <idea-version since-build="123.72"/>
+
+  <description><![CDATA[
+    A plugin that adds first-class support for Project Lombok
+    ]]>
+  </description>
+  <category>Tools Integration</category>
+
+  <depends>com.intellij.modules.lang</depends>
+  <depends>com.intellij.modules.platform</depends>
+  <depends>com.intellij.modules.java</depends>
+
+  <application-components>
+    <component>
+      <implementation-class>de.plushnikov.intellij.plugin.LombokLoader</implementation-class>
+    </component>
+  </application-components>
+
+  <extensionPoints>
+    <extensionPoint name="processor" interface="de.plushnikov.intellij.lombok.processor.LombokProcessor"/>
+  </extensionPoints>
+
+  <extensions defaultExtensionNs="com.intellij">
+    <lang.psiAugmentProvider implementation="de.plushnikov.intellij.plugin.provider.LombokAugmentProvider"/>
+    <implicitUsageProvider implementation="de.plushnikov.intellij.plugin.provider.LombokImplicitUsageProvider"/>
+    <inspectionToolProvider implementation="de.plushnikov.intellij.plugin.provider.LombokInspectionProvider"/>
+    <projectConfigurable implementation="de.plushnikov.intellij.plugin.settings.ProjectSettingsPage"/>
+
+    <renameHandler implementation="de.plushnikov.intellij.lombok.extension.LombokElementRenameHandler" order="FIRST"/>
+    <treeGenerator implementation="de.plushnikov.intellij.lombok.extension.LombokLightMethodTreeGenerator"/>
+  </extensions>
+
+  <extensions defaultExtensionNs="Lombook Plugin">
+    <processor implementation="de.plushnikov.intellij.lombok.processor.clazz.constructor.AllArgsConstructorProcessor"/>
+    <processor implementation="de.plushnikov.intellij.lombok.processor.clazz.constructor.NoArgsConstructorProcessor"/>
+    <processor implementation="de.plushnikov.intellij.lombok.processor.clazz.constructor.RequiredArgsConstructorProcessor"/>
+
+    <processor implementation="de.plushnikov.intellij.lombok.processor.clazz.log.LogProcessor"/>
+    <processor implementation="de.plushnikov.intellij.lombok.processor.clazz.log.Log4jProcessor"/>
+    <processor implementation="de.plushnikov.intellij.lombok.processor.clazz.log.Log4j2Processor"/>
+    <processor implementation="de.plushnikov.intellij.lombok.processor.clazz.log.Slf4jProcessor"/>
+    <processor implementation="de.plushnikov.intellij.lombok.processor.clazz.log.XSlf4jProcessor"/>
+    <processor implementation="de.plushnikov.intellij.lombok.processor.clazz.log.CommonsLogProcessor"/>
+
+    <processor implementation="de.plushnikov.intellij.lombok.processor.clazz.DataProcessor"/>
+    <processor implementation="de.plushnikov.intellij.lombok.processor.clazz.EqualsAndHashCodeProcessor"/>
+    <processor implementation="de.plushnikov.intellij.lombok.processor.clazz.GetterProcessor"/>
+    <processor implementation="de.plushnikov.intellij.lombok.processor.clazz.SetterProcessor"/>
+    <processor implementation="de.plushnikov.intellij.lombok.processor.clazz.ToStringProcessor"/>
+
+    <processor implementation="de.plushnikov.intellij.lombok.processor.field.DelegateFieldProcessor"/>
+    <processor implementation="de.plushnikov.intellij.lombok.processor.field.GetterFieldProcessor"/>
+    <processor implementation="de.plushnikov.intellij.lombok.processor.field.LazyGetterFieldProcessor"/>
+    <processor implementation="de.plushnikov.intellij.lombok.processor.field.SetterFieldProcessor"/>
+
+    <!-- lombok-pg-->
+    <processor implementation="de.plushnikov.intellij.lombok.processor.clazz.FluentSetterProcessor"/>
+    <processor implementation="de.plushnikov.intellij.lombok.processor.clazz.SingletonProcessor"/>
+    <processor implementation="de.plushnikov.intellij.lombok.processor.clazz.SingletonProcessor"/>
+
+    <processor implementation="de.plushnikov.intellij.lombok.processor.field.EnumIdFieldProcessor"/>
+    <processor implementation="de.plushnikov.intellij.lombok.processor.field.FluentSetterFieldProcessor"/>
+  </extensions>
+
+  <change-notes><![CDATA[
+		<ul>
+		  <li>0.6.6
+				<ol>
+				    <li>Added support for @Accessors lombok experimental annotation</li>
+				</ol>
+			</li>
+			<li>0.6.5
+				<ol>
+				    <li>Issue #20	Fixed Using @Delegate together with generic methods produced red underlining in the editor window</li>
+				    <li>Issue #29	Fixed @Delegate leads to exception in LombokLightParameter</li>
+				    <li>Issue #37 and #59	Fixed @EqualsAndHashCode inspection for callSuper parameter</li>
+				    <li>Issue #54	Valid code produces inspections errors - anonymous instance, partial implementation</li>
+				</ol>
+			</li>
+		  <li>0.6.4
+				<ol>
+				    <li>Issue #49	Deprecated fields should generate deprecated methods</li>
+				</ol>
+			</li>
+			<li>0.6.3
+				<ol>
+				    <li>Issue #41 Added support for XSlf4j and Log4j2 logger</li>
+				    <li>Issue #44 Fixed Getter- and Setter- method generation, when method is already there with a parameter(s)</li>
+				    <li>Issue #56	Removed obsolete plugin dependencies (they have been merged into intellij core)</li>
+				</ol>
+			</li>
+			<li>0.6.2
+				<ol>
+				    <li>Issue #50 Compiled with java 1.7 -> Don't work under java 1.6 vms</li>
+				</ol>
+			</li>
+			<li>0.6
+				<ol>
+				    <li>Issue #23 Updated to run with IntelliJ 12</li>
+				    <li>Issue #42 IllegalArgumentException with Intellij 12</li>
+				    <li>Issue #48 IllegalArgumentException with Intellij 12</li>
+				    <li>Issue #38 Added ability to enable/disable lombok-intellij-plugin per project-configuration
+				    and reduced logging-level of plugin</li>
+				</ol>
+			</li>
+		  <li>0.5
+				<ol>
+				    <li>Issue #23 Initial support for IntelliJ 12</li>
+				    <li>Issue #12 Added support for "Singleton" and "EnumId" annotations from lombok-pg</li>
+				    <li>Fixed Issue #27 "@EqualsAndHashCode on final classes: Should not have a canEquals in that case."</li>
+				    <li>Fixed Issue #28 "Getters and setters should be generated even if the method exists with different parameter count"</li>
+				</ol>
+			</li>
+		  <li>0.4
+				<ol>
+				    <li>fix reflection access for intellij ultimate</li>
+				</ol>
+			</li>
+			<li>0.3
+				<ol>
+            <li>Fixed issue #4 "Getter/Setter on generic types"</li>
+            <li>Fixed issue #6 "The Plugin panel in IDEA lists the plugin as "Lombook Plugin (doubled letter 'o')"</li>
+            <li>Fixed issue #7 "Added support for IntelliJ 11"</li>
+            <li>Fixed issue #9 "@Data(staticConstructor="of") is not created"</li>
+            <li>Fixed issue #10 "Empty constructor is created even if it already exists"</li>
+            <li>Fixed issue #15 "@Data with @NoArgsConstructor does not generate default constructor"</li>
+            <li>Fixed issue #17 "Incompatibility with javax.annotation.Nonnull/Nullable"</li>
+            <li>Added more inspections and QuickFixes for some of lombok annotations.</li>
+            <li>Fixed: skip constructor generation for @Data if some constructor is already defined in the class</li>
+            <li>Fixed: skip getter generation for invalid lazy-getters</li>
+            <li>Added support for "LazyGetter" and "FluentSetter" annotations from lombok-pg</li>
+				</ol>
+			</li>
+			<li>0.2
+				<ol>
+					<li>Added inspections for lombok annotations.</li>
+					<li>Added some simple QuickFixes for lombok inspections.</li>
+					<li>Fixed bug with not working auto-completion in the same source file with lombok annotations that generate methods.</li>
+					<li>Better support of lombok annotations, especially for 'staticName','types' and 'excludes' properties of @Delegate and @XXXConstructor</li>
+					<li>General bug fixing and many improvements</li>
+				</ol>
+			</li>
+			<li>0.1
+				<ol>
+					<li>Initial Release for IDEA >= 10.0</li>
+				</ol>
+			</li>
+		</ul>
+	]]>
+  </change-notes>
+</idea-plugin>
