@@ -18,6 +18,11 @@ import de.plushnikov.intellij.lombok.processor.AbstractLombokProcessor;
 import de.plushnikov.intellij.lombok.quickfix.PsiQuickFixFactory;
 import de.plushnikov.intellij.lombok.util.PsiAnnotationUtil;
 import de.plushnikov.intellij.lombok.util.PsiClassUtil;
+import fj.F;
+import fj.P1;
+import fj.Unit;
+import fj.control.Trampoline;
+import fj.data.Option;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.Annotation;
@@ -25,6 +30,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+
+import static fj.data.Option.fromNull;
 
 /**
  * Base lombok processor class for class annotations
@@ -39,13 +46,34 @@ public abstract class AbstractLombokClassProcessor extends AbstractLombokProcess
 
   @NotNull
   @Override
-  public List<? super PsiElement> process(@NotNull PsiClass psiClass) {
-    List<? super PsiElement> result = new ArrayList<PsiElement>();
+  public List<? super PsiElement> process(@NotNull final PsiClass psiClass) {
+    final List<? super PsiElement> result = new ArrayList<PsiElement>();
 
-    PsiAnnotation psiAnnotation = AnnotationUtil.findAnnotation(psiClass, Collections.singleton(getSupportedAnnotation()), true);
-    if (null != psiAnnotation) {
-      process(psiClass, psiAnnotation, result);
-    }
+    final Trampoline<Option<PsiAnnotation>> tramp = Trampoline.suspend(new P1<Trampoline<Option<PsiAnnotation>>>() {
+      public Trampoline<Option<PsiAnnotation>> _1() {
+        return Trampoline.pure(fromNull(AnnotationUtil.findAnnotation(psiClass, Collections.singleton(getSupportedAnnotation()), true)));
+      }
+    });
+
+    tramp.apply(Trampoline.suspend(new P1<Trampoline<F<Option<PsiAnnotation>, Unit>>>() {
+      public Trampoline<F<Option<PsiAnnotation>, Unit>> _1() {
+        return Trampoline.<F<Option<PsiAnnotation>, Unit>>pure(new F<Option<PsiAnnotation>, Unit>() {
+          public Unit f(Option<PsiAnnotation> optAnot) {
+            return optAnot.foreach(new F<PsiAnnotation, Unit>() {
+              public Unit f(PsiAnnotation psiAnnotation) {
+                process(psiClass, psiAnnotation, result);
+                return Unit.unit();
+              }
+            });
+          }
+        });
+      }
+    })).run();
+
+//    PsiAnnotation psiAnnotation = AnnotationUtil.findAnnotation(psiClass, Collections.singleton(getSupportedAnnotation()), true);
+//    if (null != psiAnnotation) {
+//      process(psiClass, psiAnnotation, result);
+//    }
 
     return result;
   }
