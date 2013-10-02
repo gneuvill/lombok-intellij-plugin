@@ -1,34 +1,18 @@
 package de.plushnikov.lombok;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.pom.PomNamedTarget;
-import com.intellij.psi.PsiAnnotation;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiField;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiJavaFile;
-import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiModifier;
-import com.intellij.psi.PsiModifierList;
-import com.intellij.psi.PsiParameter;
-import com.intellij.psi.PsiParameterList;
-import com.intellij.psi.PsiType;
+import com.intellij.psi.*;
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
+import fj.F;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
+
+import static fj.data.Array.array;
 
 /**
  * Base test case for testing that the Lombok plugin parses the Lombok annotations correctly.
@@ -41,6 +25,12 @@ public abstract class LombokParsingTestCase extends LightCodeInsightFixtureTestC
 
   private static final String LOMBOK_SRC_PATH = "./lombok-api/target/generated-sources/lombok";
   private static final String LOMBOKPG_SRC_PATH = "./lombok-api/target/generated-sources/lombok-pg";
+
+  private static F<PsiAnnotation,String> getQualifName = new F<PsiAnnotation, String>() {
+    public String f(PsiAnnotation psiAnnotation) {
+      return psiAnnotation.getQualifiedName();
+    }
+  };
 
   @Override
   protected String getTestDataPath() {
@@ -155,10 +145,17 @@ public abstract class LombokParsingTestCase extends LightCodeInsightFixtureTestC
       assertEquals(modifier + " Modifier is not equal; ", theirs.hasModifierProperty(modifier), intellij.hasModifierProperty(modifier));
     }
 
-    Collection<String> intellijAnnotations = Lists.newArrayList(Collections2.transform(Arrays.asList(intellij.getAnnotations()), new QualifiedNameFunction()));
-    Collection<String> theirsAnnotations = Lists.newArrayList(Collections2.transform(Arrays.asList(theirs.getAnnotations()), new QualifiedNameFunction()));
+    Collection<String> intellijAnnotations =
+        array(intellij.getAnnotations())
+            .map(getQualifName)
+            .filter(new F<String, Boolean>() {
+              public Boolean f(String s) {
+                return s.matches("lombok.*");
+              }
+            })
+            .toCollection();
+    Collection<String> theirsAnnotations = array(theirs.getAnnotations()).map(getQualifName).toCollection();
 
-    Iterables.removeIf(intellijAnnotations, Predicates.containsPattern("lombok.*"));
     //TODO assertEquals("Annotationcounts are different ", theirsAnnotations.size(), intellijAnnotations.size());
   }
 
@@ -197,13 +194,6 @@ public abstract class LombokParsingTestCase extends LightCodeInsightFixtureTestC
       PsiParameter theirsParameter = theirsParameters[i];
 
       compareType(intellijParameter.getType(), theirsParameter.getType(), theirsParameter);
-    }
-  }
-
-  private static class QualifiedNameFunction implements Function<PsiAnnotation, String> {
-    @Override
-    public String apply(PsiAnnotation psiAnnotation) {
-      return psiAnnotation.getQualifiedName();
     }
   }
 }

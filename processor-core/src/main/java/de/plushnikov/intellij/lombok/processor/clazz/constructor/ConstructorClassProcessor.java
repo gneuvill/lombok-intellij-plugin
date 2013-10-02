@@ -12,7 +12,7 @@ import com.intellij.util.StringBuilderSpinAllocator;
 import de.plushnikov.intellij.lombok.LombokUtils;
 import de.plushnikov.intellij.lombok.UserMapKeys;
 import de.plushnikov.intellij.lombok.problem.ProblemBuilder;
-import de.plushnikov.intellij.lombok.processor.clazz.AbstractLombokClassProcessor;
+import de.plushnikov.intellij.lombok.processor.clazz.AnnotationClassProcessor;
 import de.plushnikov.intellij.lombok.util.LombokProcessorUtil;
 import de.plushnikov.intellij.lombok.util.PsiAnnotationUtil;
 import de.plushnikov.intellij.lombok.util.PsiClassUtil;
@@ -33,9 +33,9 @@ import java.util.List;
  *
  * @author Plushnikov Michail
  */
-public abstract class AbstractConstructorClassProcessor extends AbstractLombokClassProcessor {
+public abstract class ConstructorClassProcessor extends AnnotationClassProcessor {
 
-  protected AbstractConstructorClassProcessor(@NotNull Class<? extends Annotation> supportedAnnotationClass, @NotNull Class supportedClass) {
+  protected ConstructorClassProcessor(@NotNull Class<? extends Annotation> supportedAnnotationClass, @NotNull Class supportedClass) {
     super(supportedAnnotationClass, supportedClass);
   }
 

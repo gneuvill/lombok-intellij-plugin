@@ -24,7 +24,7 @@ import java.util.List;
  *
  * @author Plushnikov Michail
  */
-public class EnumIdFieldProcessor extends AbstractLombokFieldProcessor {
+public class EnumIdFieldProcessor extends AnnotationFieldProcessor {
 
   public EnumIdFieldProcessor() {
     super(EnumId.class, PsiMethod.class);

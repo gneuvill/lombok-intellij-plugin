@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * @author Plushnikov Michail
  */
-public class RequiredArgsConstructorProcessor extends AbstractConstructorClassProcessor {
+public class RequiredArgsConstructorProcessor extends ConstructorClassProcessor {
 
   public RequiredArgsConstructorProcessor() {
     super(RequiredArgsConstructor.class, PsiMethod.class);

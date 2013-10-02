@@ -7,23 +7,21 @@ import com.intellij.psi.PsiElement;
 import de.plushnikov.intellij.lombok.problem.LombokProblem;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.List;
 
 /**
  * @author Plushnikov Michail
  */
-public interface LombokProcessor {
-  boolean acceptAnnotation(@NotNull PsiAnnotation psiAnnotation, @NotNull Class<? extends PsiElement> type);
+public interface Processor<T extends PsiElement> {
+  boolean acceptElement(@NotNull T psiElement, @NotNull Class<? extends PsiElement> type);
 
   @NotNull
-  String getSupportedAnnotation();
+  String getSupportedElement();
 
-  Class<? extends Annotation> getSupportedAnnotationClass();
+  Class<?> getSupportedElementClass();
 
-  Collection<LombokProblem> verifyAnnotation(@NotNull PsiAnnotation psiAnnotation);
-
+  Collection<LombokProblem> verifyElement(@NotNull PsiAnnotation psiAnnotation);
 
   boolean isEnabled(@NotNull Project project);
 

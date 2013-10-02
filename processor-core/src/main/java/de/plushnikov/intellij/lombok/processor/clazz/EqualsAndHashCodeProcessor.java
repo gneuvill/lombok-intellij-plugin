@@ -28,7 +28,7 @@ import java.util.List;
  *
  * @author Plushnikov Michail
  */
-public class EqualsAndHashCodeProcessor extends AbstractLombokClassProcessor {
+public class EqualsAndHashCodeProcessor extends AnnotationClassProcessor {
 
   public static final String EQUALS_METHOD_NAME = "equals";
   public static final String HASH_CODE_METHOD_NAME = "hashCode";

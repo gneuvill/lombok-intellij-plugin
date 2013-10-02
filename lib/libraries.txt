@@ -1,2 +1,4 @@
 Those libraries must be added as dependencies to the intellij module 'lombok-intellij-plugin' :
 * functionaljava-3.1.jar
+* scala-library-2.10.1.jar
+* scalaz-core_2.10-7.0.3.jar

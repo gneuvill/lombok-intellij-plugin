@@ -26,7 +26,7 @@ import java.util.List;
  *
  * @author Plushnikov Michail
  */
-public class AutoGenMethodStubProcessor extends AbstractLombokClassProcessor {
+public class AutoGenMethodStubProcessor extends AnnotationClassProcessor {
   public AutoGenMethodStubProcessor() {
     super(AutoGenMethodStub.class, PsiMethod.class);
   }
@@ -39,7 +39,7 @@ public class AutoGenMethodStubProcessor extends AbstractLombokClassProcessor {
   protected boolean validateAnnotationOnRightType(@NotNull final PsiClass psiClass, @NotNull final ProblemBuilder builder) {
     boolean result = true;
     if (psiClass.isAnnotationType() || psiClass.isInterface()) {
-      builder.addError(ErrorMessages.canBeUsedOnClassAndEnumOnly(getSupportedAnnotationClass()));
+      builder.addError(ErrorMessages.canBeUsedOnClassAndEnumOnly(getSupportedElementClass()));
       result = false;
     }
     return result;

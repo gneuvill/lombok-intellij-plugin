@@ -28,7 +28,7 @@ import java.util.List;
  *
  * @author Plushnikov Michail
  */
-public class SetterProcessor extends AbstractLombokClassProcessor {
+public class SetterProcessor extends AnnotationClassProcessor {
 
   private final SetterFieldProcessor fieldProcessor = new SetterFieldProcessor();
 
@@ -102,7 +102,7 @@ public class SetterProcessor extends AbstractLombokClassProcessor {
   private boolean hasFieldProcessorAnnotation(PsiModifierList modifierList) {
     boolean hasSetterAnnotation = false;
     for (PsiAnnotation fieldAnnotation : modifierList.getAnnotations()) {
-      hasSetterAnnotation |= getFieldProcessor().acceptAnnotation(fieldAnnotation, PsiMethod.class);
+      hasSetterAnnotation |= getFieldProcessor().acceptElement(fieldAnnotation, PsiMethod.class);
     }
     return hasSetterAnnotation;
   }

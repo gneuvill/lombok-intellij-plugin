@@ -23,14 +23,14 @@ import java.util.Collection;
  *
  * @author Plushnikov Michail
  */
-public class CleanupProcessor extends AbstractLombokProcessor {
+public class CleanupProcessor extends AnnotationProcessor {
 
   public CleanupProcessor() {
     super(Cleanup.class, PsiElement.class);
   }
 
   @Override
-  public Collection<LombokProblem> verifyAnnotation(@NotNull PsiAnnotation psiAnnotation) {
+  public Collection<LombokProblem> verifyElement(@NotNull PsiAnnotation psiAnnotation) {
     // TODO warning: "You're assigning an auto-cleanup variable to something else. This is a bad idea."
     Collection<LombokProblem> result = new ArrayList<LombokProblem>(2);
     final ProblemNewBuilder problemNewBuilder = new ProblemNewBuilder(result);

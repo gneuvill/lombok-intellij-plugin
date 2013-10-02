@@ -1,28 +1,18 @@
 package de.plushnikov.intellij.lombok.processor.clazz;
 
-import com.intellij.codeInsight.AnnotationUtil;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.psi.PsiAnnotation;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiField;
-import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiModifier;
+import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
 import de.plushnikov.intellij.lombok.LombokUtils;
 import de.plushnikov.intellij.lombok.problem.LombokProblem;
 import de.plushnikov.intellij.lombok.problem.ProblemBuilder;
 import de.plushnikov.intellij.lombok.problem.ProblemEmptyBuilder;
 import de.plushnikov.intellij.lombok.problem.ProblemNewBuilder;
-import de.plushnikov.intellij.lombok.processor.AbstractLombokProcessor;
+import de.plushnikov.intellij.lombok.processor.AnnotationProcessor;
 import de.plushnikov.intellij.lombok.quickfix.PsiQuickFixFactory;
 import de.plushnikov.intellij.lombok.util.PsiAnnotationUtil;
 import de.plushnikov.intellij.lombok.util.PsiClassUtil;
-import fj.F;
-import fj.P1;
-import fj.Unit;
-import fj.control.Trampoline;
-import fj.data.Option;
+import fr.neuville.lombok.util.AnnotUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.Annotation;
@@ -31,16 +21,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import static fj.data.Option.fromNull;
-
 /**
  * Base lombok processor class for class annotations
  *
  * @author Plushnikov Michail
  */
-public abstract class AbstractLombokClassProcessor extends AbstractLombokProcessor implements LombokClassProcessor {
+public abstract class AnnotationClassProcessor extends AnnotationProcessor implements ClassProcessor<PsiAnnotation> {
 
-  protected AbstractLombokClassProcessor(@NotNull Class<? extends Annotation> supportedAnnotationClass, @NotNull Class<?> supportedClass) {
+  protected AnnotationClassProcessor(@NotNull Class<? extends Annotation> supportedAnnotationClass, @NotNull Class<?> supportedClass) {
     super(supportedAnnotationClass, supportedClass);
   }
 
@@ -49,37 +37,18 @@ public abstract class AbstractLombokClassProcessor extends AbstractLombokProcess
   public List<? super PsiElement> process(@NotNull final PsiClass psiClass) {
     final List<? super PsiElement> result = new ArrayList<PsiElement>();
 
-    final Trampoline<Option<PsiAnnotation>> tramp = Trampoline.suspend(new P1<Trampoline<Option<PsiAnnotation>>>() {
-      public Trampoline<Option<PsiAnnotation>> _1() {
-        return Trampoline.pure(fromNull(AnnotationUtil.findAnnotation(psiClass, Collections.singleton(getSupportedAnnotation()), true)));
-      }
-    });
-
-    tramp.apply(Trampoline.suspend(new P1<Trampoline<F<Option<PsiAnnotation>, Unit>>>() {
-      public Trampoline<F<Option<PsiAnnotation>, Unit>> _1() {
-        return Trampoline.<F<Option<PsiAnnotation>, Unit>>pure(new F<Option<PsiAnnotation>, Unit>() {
-          public Unit f(Option<PsiAnnotation> optAnot) {
-            return optAnot.foreach(new F<PsiAnnotation, Unit>() {
-              public Unit f(PsiAnnotation psiAnnotation) {
-                process(psiClass, psiAnnotation, result);
-                return Unit.unit();
-              }
-            });
-          }
-        });
-      }
-    })).run();
-
-//    PsiAnnotation psiAnnotation = AnnotationUtil.findAnnotation(psiClass, Collections.singleton(getSupportedAnnotation()), true);
+//    PsiAnnotation psiAnnotation = AnnotationUtil.findAnnotation(psiClass, Collections.singleton(getSupportedElement()), true);
 //    if (null != psiAnnotation) {
 //      process(psiClass, psiAnnotation, result);
 //    }
+    for (PsiAnnotation psiAnnotation : AnnotUtil.findLbkAnnotation(psiClass, getSupportedElement()))
+      process(psiClass, psiAnnotation, result);
 
     return result;
   }
 
   @Override
-  public Collection<LombokProblem> verifyAnnotation(@NotNull PsiAnnotation psiAnnotation) {
+  public Collection<LombokProblem> verifyElement(@NotNull PsiAnnotation psiAnnotation) {
     Collection<LombokProblem> result = Collections.emptyList();
     // check first for fields, methods and filter it out, because PsiClass is parent of all annotations and will match other parents too
     PsiElement psiElement = PsiTreeUtil.getParentOfType(psiAnnotation, PsiField.class, PsiMethod.class, PsiClass.class);

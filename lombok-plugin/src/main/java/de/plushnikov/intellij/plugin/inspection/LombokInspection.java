@@ -10,13 +10,13 @@ import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiReferenceExpression;
 import de.plushnikov.intellij.lombok.extension.LombokProcessorExtensionPoint;
 import de.plushnikov.intellij.lombok.problem.LombokProblem;
-import de.plushnikov.intellij.lombok.processor.LombokProcessor;
-import gnu.trove.THashMap;
+import de.plushnikov.intellij.lombok.processor.Processor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author Plushnikov Michail
@@ -24,15 +24,14 @@ import java.util.Map;
 public class LombokInspection extends BaseJavaLocalInspectionTool {
   private static final Logger LOG = Logger.getInstance(LombokInspection.class.getName());
 
-  private final Map<String, Collection<LombokProcessor>> allProblemHandlers;
+  private final ConcurrentMap<String, Collection<Processor>> allProblemHandlers = new ConcurrentHashMap<>();
 
   public LombokInspection() {
-    allProblemHandlers = new THashMap<String, Collection<LombokProcessor>>();
-    for (LombokProcessor lombokInspector : LombokProcessorExtensionPoint.EP_NAME.getExtensions()) {
-      Collection<LombokProcessor> inspectorCollection = allProblemHandlers.get(lombokInspector.getSupportedAnnotation());
+    for (Processor lombokInspector : LombokProcessorExtensionPoint.EP_NAME.getExtensions()) {
+      Collection<Processor> inspectorCollection = allProblemHandlers.get(lombokInspector.getSupportedElement());
       if (null == inspectorCollection) {
-        inspectorCollection = new ArrayList<LombokProcessor>(2);
-        allProblemHandlers.put(lombokInspector.getSupportedAnnotation(), inspectorCollection);
+        inspectorCollection = new ArrayList<Processor>(2);
+        allProblemHandlers.put(lombokInspector.getSupportedElement(), inspectorCollection);
       }
       inspectorCollection.add(lombokInspector);
 
@@ -78,8 +77,8 @@ public class LombokInspection extends BaseJavaLocalInspectionTool {
 
         final String qualifiedName = annotation.getQualifiedName();
         if (null != qualifiedName && allProblemHandlers.containsKey(qualifiedName)) {
-          for (LombokProcessor inspector : allProblemHandlers.get(qualifiedName)) {
-            Collection<LombokProblem> problems = inspector.verifyAnnotation(annotation);
+          for (Processor inspector : allProblemHandlers.get(qualifiedName)) {
+            Collection<LombokProblem> problems = inspector.verifyElement(annotation);
             for (LombokProblem problem : problems) {
               holder.registerProblem(annotation, problem.getMessage(), problem.getHighlightType(), problem.getQuickFixes());
             }

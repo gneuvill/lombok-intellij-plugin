@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * @author Plushnikov Michail
  */
-public class DataProcessor extends AbstractLombokClassProcessor {
+public class DataProcessor extends AnnotationClassProcessor {
 
   public DataProcessor() {
     super(Data.class, PsiMethod.class);

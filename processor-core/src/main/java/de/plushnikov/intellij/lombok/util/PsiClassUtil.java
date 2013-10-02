@@ -1,20 +1,9 @@
 package de.plushnikov.intellij.lombok.util;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Lists;
-import com.intellij.psi.CommonClassNames;
-import com.intellij.psi.JavaPsiFacade;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiElementFactory;
-import com.intellij.psi.PsiField;
-import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiModifier;
-import com.intellij.psi.PsiType;
-import com.intellij.psi.PsiTypeParameter;
+import com.intellij.psi.*;
 import com.intellij.psi.impl.source.PsiExtensibleClass;
+import fj.F;
+import fj.F2;
 import gnu.trove.THashMap;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,23 +11,32 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
+import static fj.data.Array.array;
+
 /**
  * @author Plushnikov Michail
  */
 public class PsiClassUtil {
 
-  private static final Function<PsiElement, PsiMethod> PSI_ELEMENT_TO_METHOD_FUNCTION = new Function<PsiElement, PsiMethod>() {
-    @Override
-    public PsiMethod apply(PsiElement psiElement) {
+  private static final F<PsiElement, PsiMethod> PSI_ELEMENT_TO_METHOD_FUNCTION = new F<PsiElement, PsiMethod>() {
+    public PsiMethod f(PsiElement psiElement) {
       return (PsiMethod) psiElement;
     }
   };
-  private static final Function<PsiElement, PsiField> PSI_ELEMENT_TO_FIELD_FUNCTION = new Function<PsiElement, PsiField>() {
-    @Override
-    public PsiField apply(PsiElement psiElement) {
+
+  private static final F<PsiElement, PsiField> PSI_ELEMENT_TO_FIELD_FUNCTION = new F<PsiElement, PsiField>() {
+    public PsiField f(PsiElement psiElement) {
       return (PsiField) psiElement;
     }
   };
+
+
+  private static final F2<Class<?>, PsiElement, Boolean> psiElInstanceOf =
+     new F2<Class<?>, PsiElement, Boolean>() {
+      public Boolean f(Class<?> clazz, PsiElement psiElement) {
+        return clazz.isInstance(psiElement);
+      }
+    };
 
   /**
    * Workaround to get all of original Methods of the psiClass, without calling PsiAugmentProvider infinitely
@@ -51,11 +49,13 @@ public class PsiClassUtil {
     if (psiClass instanceof PsiExtensibleClass) {
       return ((PsiExtensibleClass) psiClass).getOwnMethods();
     } else {
-      return Collections2.transform(
-          Collections2.filter(Lists.newArrayList(psiClass.getChildren()), Predicates.instanceOf(PsiMethod.class)),
-          PSI_ELEMENT_TO_METHOD_FUNCTION);
+      return array(psiClass.getChildren())
+          .filter(psiElInstanceOf.f(PsiMethod.class))
+          .map(PSI_ELEMENT_TO_METHOD_FUNCTION)
+          .toCollection();
     }
   }
+
 
   /**
    * Workaround to get all of original Fields of the psiClass, without calling PsiAugmentProvider infinitely
@@ -68,9 +68,10 @@ public class PsiClassUtil {
     if (psiClass instanceof PsiExtensibleClass) {
       return ((PsiExtensibleClass) psiClass).getOwnFields();
     } else {
-      return Collections2.transform(
-          Collections2.filter(Lists.newArrayList(psiClass.getChildren()), Predicates.instanceOf(PsiField.class)),
-          PSI_ELEMENT_TO_FIELD_FUNCTION);
+      return array(psiClass.getChildren())
+          .filter(psiElInstanceOf.f(PsiField.class))
+          .map(PSI_ELEMENT_TO_FIELD_FUNCTION)
+          .toCollection();
     }
   }
 

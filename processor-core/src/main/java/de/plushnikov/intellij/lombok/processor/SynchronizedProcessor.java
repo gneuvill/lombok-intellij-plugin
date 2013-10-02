@@ -27,14 +27,14 @@ import java.util.Collection;
  *
  * @author Plushnikov Michail
  */
-public class SynchronizedProcessor extends AbstractLombokProcessor {
+public class SynchronizedProcessor extends AnnotationProcessor {
 
   public SynchronizedProcessor() {
     super(Synchronized.class, PsiElement.class);
   }
 
   @Override
-  public Collection<LombokProblem> verifyAnnotation(@NotNull PsiAnnotation psiAnnotation) {
+  public Collection<LombokProblem> verifyElement(@NotNull PsiAnnotation psiAnnotation) {
     Collection<LombokProblem> result = new ArrayList<LombokProblem>(2);
 
     final ProblemNewBuilder problemNewBuilder = new ProblemNewBuilder(result);

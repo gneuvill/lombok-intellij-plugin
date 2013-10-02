@@ -5,7 +5,7 @@ import lombok.extern.slf4j.XSlf4j;
 /**
  * @author Plushnikov Michail
  */
-public class XSlf4jProcessor extends AbstractLogProcessor {
+public class XSlf4jProcessor extends LogProcessor {
 
   private static final String LOGGER_TYPE = "org.slf4j.ext.XLogger";
   private static final String LOGGER_INITIALIZER = "org.slf4j.ext.XLoggerFactory.getXLogger(%s.class)";

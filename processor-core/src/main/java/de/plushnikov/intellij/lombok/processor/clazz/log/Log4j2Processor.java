@@ -5,7 +5,7 @@ import lombok.extern.log4j.Log4j2;
 /**
  * @author Plushnikov Michail
  */
-public class Log4j2Processor extends AbstractLogProcessor {
+public class Log4j2Processor extends LogProcessor {
 
   private static final String LOGGER_TYPE = "org.apache.logging.log4j.Logger";
   private static final String LOGGER_INITIALIZER = "org.apache.logging.log4j.LogManager.getLogger(%s.class)";

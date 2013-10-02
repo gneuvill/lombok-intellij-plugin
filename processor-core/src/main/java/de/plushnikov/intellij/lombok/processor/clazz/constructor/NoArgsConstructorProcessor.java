@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * @author Plushnikov Michail
  */
-public class NoArgsConstructorProcessor extends AbstractConstructorClassProcessor {
+public class NoArgsConstructorProcessor extends ConstructorClassProcessor {
 
   public NoArgsConstructorProcessor() {
     super(NoArgsConstructor.class, PsiMethod.class);
