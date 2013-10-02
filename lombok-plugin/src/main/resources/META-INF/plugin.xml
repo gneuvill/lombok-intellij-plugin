@@ -23,7 +23,7 @@
   </application-components>
 
   <extensionPoints>
-    <extensionPoint name="processor" interface="de.plushnikov.intellij.lombok.processor.Processor"/>
+    <extensionPoint name="processor" interface="fr.neuville.lombok.processor.Processor"/>
   </extensionPoints>
 
   <extensions defaultExtensionNs="com.intellij">
@@ -64,8 +64,6 @@
     <!-- lombok-pg-->
     <processor implementation="de.plushnikov.intellij.lombok.processor.clazz.FluentSetterProcessor"/>
     <processor implementation="de.plushnikov.intellij.lombok.processor.clazz.SingletonProcessor"/>
-    <processor implementation="de.plushnikov.intellij.lombok.processor.clazz.SingletonProcessor"/>
-
     <processor implementation="de.plushnikov.intellij.lombok.processor.field.EnumIdFieldProcessor"/>
     <processor implementation="de.plushnikov.intellij.lombok.processor.field.FluentSetterFieldProcessor"/>
   </extensions>

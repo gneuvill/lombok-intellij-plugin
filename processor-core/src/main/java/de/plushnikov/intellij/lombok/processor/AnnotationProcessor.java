@@ -4,6 +4,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
+import fr.neuville.lombok.processor.Processor;
 import fr.neuville.lombok.util.AnnotUtil;
 import org.jetbrains.annotations.NotNull;
 

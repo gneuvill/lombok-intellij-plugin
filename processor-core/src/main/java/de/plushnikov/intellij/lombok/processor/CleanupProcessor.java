@@ -1,5 +1,6 @@
 package de.plushnikov.intellij.lombok.processor;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiClass;

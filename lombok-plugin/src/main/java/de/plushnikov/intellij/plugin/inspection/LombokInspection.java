@@ -4,13 +4,10 @@ import com.intellij.codeInsight.daemon.GroupNames;
 import com.intellij.codeInspection.BaseJavaLocalInspectionTool;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.psi.JavaElementVisitor;
-import com.intellij.psi.PsiAnnotation;
-import com.intellij.psi.PsiElementVisitor;
-import com.intellij.psi.PsiReferenceExpression;
+import com.intellij.psi.*;
 import de.plushnikov.intellij.lombok.extension.LombokProcessorExtensionPoint;
 import de.plushnikov.intellij.lombok.problem.LombokProblem;
-import de.plushnikov.intellij.lombok.processor.Processor;
+import fr.neuville.lombok.processor.Processor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -24,13 +21,13 @@ import java.util.concurrent.ConcurrentMap;
 public class LombokInspection extends BaseJavaLocalInspectionTool {
   private static final Logger LOG = Logger.getInstance(LombokInspection.class.getName());
 
-  private final ConcurrentMap<String, Collection<Processor>> allProblemHandlers = new ConcurrentHashMap<>();
+  private final ConcurrentMap<String, Collection<Processor<PsiElement>>> allProblemHandlers = new ConcurrentHashMap<>();
 
   public LombokInspection() {
-    for (Processor lombokInspector : LombokProcessorExtensionPoint.EP_NAME.getExtensions()) {
-      Collection<Processor> inspectorCollection = allProblemHandlers.get(lombokInspector.getSupportedElement());
+    for (Processor<PsiElement> lombokInspector : LombokProcessorExtensionPoint.EP_NAME.getExtensions()) {
+      Collection<Processor<PsiElement>> inspectorCollection = allProblemHandlers.get(lombokInspector.getSupportedElement());
       if (null == inspectorCollection) {
-        inspectorCollection = new ArrayList<Processor>(2);
+        inspectorCollection = new ArrayList<>(2);
         allProblemHandlers.put(lombokInspector.getSupportedElement(), inspectorCollection);
       }
       inspectorCollection.add(lombokInspector);

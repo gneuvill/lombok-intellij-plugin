@@ -2,7 +2,7 @@ package de.plushnikov.intellij.lombok.processor.clazz;
 
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
-import de.plushnikov.intellij.lombok.processor.Processor;
+import fr.neuville.lombok.processor.Processor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
