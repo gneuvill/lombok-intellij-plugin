@@ -7,6 +7,7 @@ import de.plushnikov.intellij.lombok.processor.clazz.constructor.AllArgsConstruc
 import de.plushnikov.intellij.lombok.quickfix.PsiQuickFixFactory;
 import de.plushnikov.intellij.lombok.util.PsiAnnotationUtil;
 import de.plushnikov.intellij.lombok.util.PsiClassUtil;
+import java.lang.annotation.Annotation;
 import lombok.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,7 +20,11 @@ import java.util.List;
 public class ValueProcessor extends AbstractLombokClassProcessor {
 
   public ValueProcessor() {
-    super(Value.class, PsiMethod.class);
+    this(Value.class);
+  }
+
+  protected ValueProcessor(@NotNull Class<? extends Annotation> supportedAnnotationClass) {
+    super(supportedAnnotationClass, PsiMethod.class);
   }
 
   @Override
