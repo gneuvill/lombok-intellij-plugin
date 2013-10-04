@@ -149,7 +149,7 @@ public class PsiClassUtil {
     boolean result = false;
     final PsiModifierList modifierList = psiClass.getModifierList();
     if (null != modifierList) {
-      result = modifierList.hasModifierProperty(PsiModifier.STATIC);
+      result = modifierList.hasModifierProperty(PsiModifier.FINAL);
     }
     return result;
   }
