@@ -55,6 +55,7 @@
     <processor implementation="de.plushnikov.intellij.lombok.processor.clazz.ToStringProcessor"/>
     <processor implementation="de.plushnikov.intellij.lombok.processor.clazz.ValueProcessor"/>
     <processor implementation="de.plushnikov.intellij.lombok.processor.clazz.ValueExperimentalProcessor"/>
+    <processor implementation="de.plushnikov.intellij.lombok.processor.clazz.WitherProcessor"/>
 
     <processor implementation="de.plushnikov.intellij.lombok.processor.field.DelegateFieldProcessor"/>
     <processor implementation="de.plushnikov.intellij.lombok.processor.field.GetterFieldProcessor"/>

@@ -2,6 +2,7 @@ package de.plushnikov.intellij.lombok.processor.field;
 
 import com.intellij.codeInspection.LocalQuickFix;
 import com.intellij.psi.*;
+import de.plushnikov.intellij.lombok.LombokUtils;
 import de.plushnikov.intellij.lombok.StringUtils;
 import de.plushnikov.intellij.lombok.problem.ProblemBuilder;
 import de.plushnikov.intellij.lombok.psi.LombokLightMethodBuilder;
@@ -72,21 +73,11 @@ public class WitherFieldProcessor extends AbstractLombokFieldProcessor {
 
   @Override
   protected void processIntern(PsiField psiField, PsiAnnotation psiAnnotation, List<? super PsiElement> target) {
-    for (PsiField field : fromNull(psiField))
-      for (PsiManager manager : fromNull(field.getManager()))
-        for(String fieldName : fromString(field.getName()))
-          for (PsiType fieldType : fromNull(field.getType()))
-            for (PsiClass fieldClass : fromNull(field.getContainingClass()))
-              for (PsiType returnType : fromNull(PsiClassUtil.getTypeWithGenerics(fieldClass)))
-                for(String methodVisibility : fromNull(getMethodModifier(psiAnnotation))) {
-                final LombokLightMethodBuilder method =
-                    LombokPsiElementFactory.getInstance().createLightMethod(manager, witherName(fieldName))
-                    .withMethodReturnType(returnType)
-                    .withContainingClass(fieldClass)
-                    .withParameter(fieldName, fieldType)
-                    .withNavigationElement(field);
-                  target.add(method.withModifier(methodVisibility));
-                }
+    for (String methodVisibility : fromNull(getMethodModifier(psiAnnotation))) {
+      for(PsiMethod psiMethod : fromNull(createWitherMethod(psiField, methodVisibility)))  {
+        target.add(psiMethod);
+      }
+    }
   }
 
   private String witherName(String fieldName) {
@@ -136,7 +127,7 @@ public class WitherFieldProcessor extends AbstractLombokFieldProcessor {
           public Boolean f(Class<? extends Annotation> clazz, PsiClass psiClass) {
             return isAnnotatedWith(psiClass, clazz);
           }
-    };
+        };
 
     final boolean hasAllArgsConstAnot =
         fromNull(field.getContainingClass()).exists(isAnnotatedWith.f(AllArgsConstructor.class));
@@ -162,12 +153,34 @@ public class WitherFieldProcessor extends AbstractLombokFieldProcessor {
     for (String fieldName : fromString(field.getName()))
       for (PsiClass psiClass : fromNull(field.getContainingClass()))
         if (PsiMethodUtil.hasSimilarMethod(PsiClassUtil.collectClassMethodsIntern(psiClass), witherName(fieldName), 1)
-          ||PsiMethodUtil.hasSimilarMethod(PsiClassUtil.collectClassMethodsIntern(psiClass), secondWitherName(fieldName), 1))
+            || PsiMethodUtil.hasSimilarMethod(PsiClassUtil.collectClassMethodsIntern(psiClass), secondWitherName(fieldName), 1))
           return fail(p(
               format("No '@%s' generated : a method named '%s' taking one parameter already exists",
                   annotation.getQualifiedName(),
                   witherName(fieldName)),
               Option.<LocalQuickFix>none()));
     return success(true);
+  }
+
+  public PsiMethod createWitherMethod(@NotNull PsiField psiField, @NotNull String methodModifier) {
+    for (PsiField field : fromNull(psiField))
+      for (PsiManager manager : fromNull(field.getManager()))
+        for (String fieldName : fromString(field.getName()))
+          for (PsiType fieldType : fromNull(field.getType()))
+            for (PsiClass fieldClass : fromNull(field.getContainingClass()))
+              for (PsiType returnType : fromNull(PsiClassUtil.getTypeWithGenerics(fieldClass))) {
+                final LombokLightMethodBuilder method =
+                    LombokPsiElementFactory.getInstance().createLightMethod(manager, witherName(fieldName))
+                        .withMethodReturnType(returnType)
+                        .withContainingClass(fieldClass)
+                        .withParameter(fieldName, fieldType)
+                        .withNavigationElement(field)
+                        .withModifier(methodModifier);
+                copyAnnotations(psiField, method.getModifierList(),
+                    LombokUtils.NON_NULL_PATTERN, LombokUtils.NULLABLE_PATTERN, LombokUtils.DEPRECATED_PATTERN);
+                return method;
+              }
+
+    return null;
   }
 }
