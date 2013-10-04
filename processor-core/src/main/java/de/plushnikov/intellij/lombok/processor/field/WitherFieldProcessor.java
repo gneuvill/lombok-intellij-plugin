@@ -6,6 +6,7 @@ import de.plushnikov.intellij.lombok.problem.ProblemBuilder;
 import de.plushnikov.intellij.lombok.psi.LombokLightMethodBuilder;
 import de.plushnikov.intellij.lombok.psi.LombokPsiElementFactory;
 import de.plushnikov.intellij.lombok.quickfix.PsiQuickFixFactory;
+import de.plushnikov.intellij.lombok.util.LombokProcessorUtil;
 import de.plushnikov.intellij.lombok.util.PsiClassUtil;
 import de.plushnikov.intellij.lombok.util.PsiMethodUtil;
 import fj.*;
@@ -82,11 +83,10 @@ public class WitherFieldProcessor extends AbstractLombokFieldProcessor {
                     .withContainingClass(fieldClass)
                     .withParameter(fieldName, fieldType)
                     .withNavigationElement(field);
-                target.add(fromNull(getMethodModifier(psiAnnotation)).map(new F<String, PsiMethod>() {
-                  public PsiMethod f(String modifier) {
-                    return method.withModifier(modifier);
-                  }
-                }).orSome(method));
+                final String methodVisibility = LombokProcessorUtil.getMethodModifier(psiAnnotation);
+                if(methodVisibility != null) {
+                  target.add(method.withModifier(methodVisibility));
+                }
               }
   }
 
