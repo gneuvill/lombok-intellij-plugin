@@ -21,6 +21,7 @@ import com.intellij.psi.PsiParameterList;
 import com.intellij.psi.PsiType;
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
 
+import de.plushnikov.intellij.lombok.StringUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -29,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
+import org.junit.Assert;
 
 /**
  * Base test case for testing that the Lombok plugin parses the Lombok annotations correctly.
@@ -72,7 +74,7 @@ public abstract class LombokParsingTestCase extends LightCodeInsightFixtureTestC
   }
 
   public void doTest() throws IOException {
-    doTest(getTestName(true).replace('$', '/') + ".java");
+    doTest(StringUtils.capitalize(getTestName(true)).replace('$', '/') + ".java");
   }
 
   protected void doTest(String fileName) throws IOException {
@@ -122,7 +124,7 @@ public abstract class LombokParsingTestCase extends LightCodeInsightFixtureTestC
         if (theirsField.getName().equals(intellijField.getName())) {
           final PsiModifierList intellijFieldModifierList = intellijField.getModifierList();
 
-          compareModifiers(intellijFieldModifierList, theirsFieldModifierList);
+          compareModifiers(theirsField.getName(), intellijFieldModifierList, theirsFieldModifierList);
           compareType(intellijField.getType(), theirsField.getType(), theirsField);
           compared = true;
         }
@@ -147,12 +149,12 @@ public abstract class LombokParsingTestCase extends LightCodeInsightFixtureTestC
     return theirsCanonicalText;
   }
 
-  private void compareModifiers(PsiModifierList intellij, PsiModifierList theirs) {
+  private void compareModifiers(String fieldName, PsiModifierList intellij, PsiModifierList theirs) {
     assertNotNull(intellij);
     assertNotNull(theirs);
 
     for (String modifier : modifiers) {
-      assertEquals(modifier + " Modifier is not equal; ", theirs.hasModifierProperty(modifier), intellij.hasModifierProperty(modifier));
+      assertEquals(modifier + " Modifier on " + fieldName + " is not equal; ", theirs.hasModifierProperty(modifier), intellij.hasModifierProperty(modifier));
     }
 
     Collection<String> intellijAnnotations = Lists.newArrayList(Collections2.transform(Arrays.asList(intellij.getAnnotations()), new QualifiedNameFunction()));
@@ -166,6 +168,7 @@ public abstract class LombokParsingTestCase extends LightCodeInsightFixtureTestC
     PsiMethod[] intellijMethods = intellij.getMethods();
     PsiMethod[] theirsMethods = theirs.getMethods();
 
+    System.out.println("intellij : " + Arrays.asList(intellijMethods) + "\nanother : " + Arrays.asList(theirsMethods));
     assertEquals("Methodscounts are different for Class: " + intellij.getName(), theirsMethods.length, intellijMethods.length);
 
     for (PsiMethod theirsMethod : theirsMethods) {
@@ -176,7 +179,7 @@ public abstract class LombokParsingTestCase extends LightCodeInsightFixtureTestC
             theirsMethod.getParameterList().getParametersCount() == intellijMethod.getParameterList().getParametersCount()) {
           PsiModifierList intellijFieldModifierList = intellijMethod.getModifierList();
 
-          compareModifiers(intellijFieldModifierList, theirsFieldModifierList);
+          compareModifiers(theirsMethod.getName(), intellijFieldModifierList, theirsFieldModifierList);
           compareType(intellijMethod.getReturnType(), theirsMethod.getReturnType(), theirsMethod);
           compareParams(intellijMethod.getParameterList(), theirsMethod.getParameterList());
 
