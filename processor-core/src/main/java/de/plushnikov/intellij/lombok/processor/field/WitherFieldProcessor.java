@@ -2,6 +2,7 @@ package de.plushnikov.intellij.lombok.processor.field;
 
 import com.intellij.codeInspection.LocalQuickFix;
 import com.intellij.psi.*;
+import de.plushnikov.intellij.lombok.StringUtils;
 import de.plushnikov.intellij.lombok.problem.ProblemBuilder;
 import de.plushnikov.intellij.lombok.psi.LombokLightMethodBuilder;
 import de.plushnikov.intellij.lombok.psi.LombokPsiElementFactory;
@@ -76,25 +77,27 @@ public class WitherFieldProcessor extends AbstractLombokFieldProcessor {
         for(String fieldName : fromString(field.getName()))
           for (PsiType fieldType : fromNull(field.getType()))
             for (PsiClass fieldClass : fromNull(field.getContainingClass()))
-              for (PsiType returnType : fromNull(PsiClassUtil.getTypeWithGenerics(fieldClass))) {
+              for (PsiType returnType : fromNull(PsiClassUtil.getTypeWithGenerics(fieldClass)))
+                for(String methodVisibility : fromNull(getMethodModifier(psiAnnotation))) {
                 final LombokLightMethodBuilder method =
                     LombokPsiElementFactory.getInstance().createLightMethod(manager, witherName(fieldName))
                     .withMethodReturnType(returnType)
                     .withContainingClass(fieldClass)
                     .withParameter(fieldName, fieldType)
                     .withNavigationElement(field);
-                final String methodVisibility = LombokProcessorUtil.getMethodModifier(psiAnnotation);
-                if(methodVisibility != null) {
                   target.add(method.withModifier(methodVisibility));
                 }
-              }
   }
 
   private String witherName(String fieldName) {
     final String suffix = fieldName.startsWith("is") && Character.isUpperCase(fieldName.charAt(2)) ?
         fieldName.substring(2) :
         fieldName;
-    return "with" + Character.toUpperCase(suffix.charAt(0)) + suffix.substring(1);
+    return "with" + StringUtils.capitalize(suffix);
+  }
+
+  private String secondWitherName(String fieldName) {
+    return "with" + StringUtils.capitalize(fieldName);
   }
 
   private Validation<P2<String, Option<LocalQuickFix>>, Boolean> validNonStatic(PsiField field, PsiAnnotation annotation) {
@@ -158,7 +161,8 @@ public class WitherFieldProcessor extends AbstractLombokFieldProcessor {
   private Validation<P2<String, Option<LocalQuickFix>>, Boolean> validIsWitherUnique(PsiField field, PsiAnnotation annotation) {
     for (String fieldName : fromString(field.getName()))
       for (PsiClass psiClass : fromNull(field.getContainingClass()))
-        if (PsiMethodUtil.hasSimilarMethod(PsiClassUtil.collectClassMethodsIntern(psiClass), witherName(fieldName), 1))
+        if (PsiMethodUtil.hasSimilarMethod(PsiClassUtil.collectClassMethodsIntern(psiClass), witherName(fieldName), 1)
+          ||PsiMethodUtil.hasSimilarMethod(PsiClassUtil.collectClassMethodsIntern(psiClass), secondWitherName(fieldName), 1))
           return fail(p(
               format("No '@%s' generated : a method named '%s' taking one parameter already exists",
                   annotation.getQualifiedName(),
