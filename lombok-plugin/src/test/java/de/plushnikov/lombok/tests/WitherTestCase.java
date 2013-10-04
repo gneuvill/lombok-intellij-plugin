@@ -33,7 +33,6 @@ public class WitherTestCase extends LombokParsingTestCase {
     doTest();
   }
 
-
   public void testWitherWithDollar() throws IOException {
     doTest();
   }

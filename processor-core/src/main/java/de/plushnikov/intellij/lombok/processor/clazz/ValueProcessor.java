@@ -1,6 +1,7 @@
 package de.plushnikov.intellij.lombok.processor.clazz;
 
 import com.intellij.psi.*;
+import com.intellij.psi.util.PsiUtil;
 import de.plushnikov.intellij.lombok.problem.ProblemBuilder;
 import de.plushnikov.intellij.lombok.problem.ProblemEmptyBuilder;
 import de.plushnikov.intellij.lombok.processor.clazz.constructor.AllArgsConstructorProcessor;
@@ -55,6 +56,11 @@ public class ValueProcessor extends AbstractLombokClassProcessor {
   }
 
   protected void processIntern(@NotNull PsiClass psiClass, @NotNull PsiAnnotation psiAnnotation, @NotNull List<? super PsiElement> target) {
+    //@Value class are final
+    if(!PsiClassUtil.isFinalClass(psiClass)) {
+//      PsiUtil.setModifierProperty(psiClass, PsiModifier.FINAL, true);
+    }
+
     if (PsiAnnotationUtil.isNotAnnotatedWith(psiClass, Getter.class)) {
       target.addAll(new GetterProcessor().createFieldGetters(psiClass, PsiModifier.PUBLIC));
     }
@@ -79,9 +85,6 @@ public class ValueProcessor extends AbstractLombokClassProcessor {
               psiClass, PsiModifier.PUBLIC, psiAnnotation, staticName));
         }
       }
-    }
-    if(!PsiClassUtil.isFinalClass(psiClass)) {
-//      target.add(PsiModifier.FINAL);
     }
   }
 

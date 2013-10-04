@@ -168,7 +168,7 @@ public abstract class LombokParsingTestCase extends LightCodeInsightFixtureTestC
     PsiMethod[] intellijMethods = intellij.getMethods();
     PsiMethod[] theirsMethods = theirs.getMethods();
 
-    System.out.println("intellij : " + Arrays.asList(intellijMethods) + "\nanother : " + Arrays.asList(theirsMethods));
+    System.out.println("by me : " + Arrays.asList(intellijMethods) + "\nexpected : " + Arrays.asList(theirsMethods));
     assertEquals("Methodscounts are different for Class: " + intellij.getName(), theirsMethods.length, intellijMethods.length);
 
     for (PsiMethod theirsMethod : theirsMethods) {
