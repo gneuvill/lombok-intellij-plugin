@@ -65,7 +65,7 @@ public class ValueProcessor extends AbstractLombokClassProcessor {
       target.addAll(new GetterProcessor().createFieldGetters(psiClass, PsiModifier.PUBLIC));
     }
     if (PsiAnnotationUtil.isNotAnnotatedWith(psiClass, EqualsAndHashCode.class)) {
-      target.addAll(new EqualsAndHashCodeProcessor().createEqualAndHashCode(psiClass, psiAnnotation));
+      target.addAll(new EqualsAndHashCodeProcessor().createEqualAndHashCode(psiClass, psiAnnotation, false));
     }
     if (PsiAnnotationUtil.isNotAnnotatedWith(psiClass, ToString.class)) {
       target.addAll(new ToStringProcessor().createToStringMethod(psiClass, psiAnnotation));
