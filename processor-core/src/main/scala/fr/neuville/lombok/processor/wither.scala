@@ -129,29 +129,29 @@ final class WitherFieldProc(val annotationClass: JClass[_ <: JAnnotation],
     val hasParam: PsiField => PsiMethod => Boolean = f => m =>
       m.getParameterList.getParameters exists (p => typesAreEquivalent(p.getType, f.getType))
 
-    val hasRightConstructor = Option(field.getContainingClass)
+    lazy val hasRightConstructor = Option(field.getContainingClass)
       .map(psiClass => collectClassConstructorIntern(psiClass))
       .exists(_.any(hasParam(field)))
 
-    val isAnnotatedWith: JClass[_ <: JAnnotation] => PsiClass => Boolean =
+    lazy val isAnnotatedWith: JClass[_ <: JAnnotation] => PsiClass => Boolean =
       clazz => psiClass => PsiAnnotationUtil.isAnnotatedWith(psiClass, clazz)
 
-    val hasAllArgsConstAnot =
+    lazy val hasAllArgsConstAnot =
       Option(field.getContainingClass).exists(isAnnotatedWith(classOf[AllArgsConstructor]))
 
-    val hasRequiredArgsConstAnot =
+    lazy val hasRequiredArgsConstAnot =
       Option(field.getContainingClass).exists(isAnnotatedWith(classOf[RequiredArgsConstructor]))
 
-    val isFinal = field.hasModifierProperty(PsiModifier.FINAL)
+    lazy val isFinal = field.hasModifierProperty(PsiModifier.FINAL)
 
-    val hasNonNullAnot = PsiAnnotationUtil.isAnnotatedWith(field, classOf[NonNull])
+    lazy val hasNonNullAnot = PsiAnnotationUtil.isAnnotatedWith(field, classOf[NonNull])
 
     if (hasRightConstructor ||
       hasAllArgsConstAnot ||
       (hasRequiredArgsConstAnot && (isFinal || hasNonNullAnot)))
       true.success
     else
-      Warning(s"""Compilation will fail : no constructor
+      Error(s"""Compilation will fail : no constructor
       with a parameter of type ${field.getType.getCanonicalText} was found""").failNel
   }
 
